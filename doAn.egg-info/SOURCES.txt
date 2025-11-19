@@ -1,0 +1,5 @@
+setup.py
+src/doAn.egg-info/PKG-INFO
+src/doAn.egg-info/SOURCES.txt
+src/doAn.egg-info/dependency_links.txt
+src/doAn.egg-info/top_level.txt

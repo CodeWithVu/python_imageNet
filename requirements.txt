@@ -1,0 +1,17 @@
+# Core dependencies
+tensorflow>=2.10.0
+keras>=2.10.0
+
+# Data processing
+pandas>=1.5.0
+numpy>=1.23.0
+
+# Visualization
+matplotlib>=3.6.0
+seaborn>=0.12.0
+
+# Machine Learning utilities
+scikit-learn>=1.1.0
+
+# Image processing (included with tensorflow but listing for clarity)
+Pillow>=9.0.0

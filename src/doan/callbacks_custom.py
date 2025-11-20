@@ -2,9 +2,9 @@ from tensorflow import keras
 import time
 
 class ASK(keras.callbacks.Callback):
-    def __init__(self, model, epochs, ask_epoch):
+    def __init__(self, epochs, ask_epoch):
         super(ASK, self).__init__()
-        self.model = model
+        # Keras sẽ gán self.model khi training bắt đầu; không cần (và không được) set ở đây.
         self.ask_epoch = ask_epoch
         self.epochs = epochs
         self.ask = True

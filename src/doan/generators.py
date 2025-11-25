@@ -19,3 +19,22 @@ def create_generators(train_df, valid_df, test_df, img_size=(200,200), batch_siz
     class_count = len(classes)
     print('test batch size: ', test_batch_size, ' test steps: ', test_steps, ' number of classes: ', class_count)
     return train_gen, valid_gen, test_gen, classes, class_count, test_steps
+
+# rescale=1/255
+# Chuẩn hoá pixel từ 0–255 → 0–1.
+
+# rotation_range=15
+# Xoay ảnh ngẫu nhiên ±15 độ → giúp model học được tính bất biến góc xoay nhẹ.
+
+# width_shift_range=0.1, height_shift_range=0.1
+# Dịch ảnh sang trái/phải/lên/xuống tối đa 10%.
+
+# zoom_range=0.1
+# Zoom vào/ra tối đa 10%.
+
+# horizontal_flip=True
+# Lật ngang ảnh ngẫu nhiên.
+
+# validation_split=0.2
+# Chia 20% ảnh trong DataFrame làm validation
+# (Keras sẽ tự chia theo seed nội bộ).

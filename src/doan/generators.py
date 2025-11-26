@@ -1,8 +1,8 @@
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 def create_generators(train_df, valid_df, test_df, img_size=(200,200), batch_size=30):
-    trgen = ImageDataGenerator(horizontal_flip=True, rotation_range=20, width_shift_range=.2, height_shift_range=.2, zoom_range=.2)
-    t_and_v_gen = ImageDataGenerator()
+    trgen = ImageDataGenerator(rescale=1./255, horizontal_flip=True, rotation_range=20, width_shift_range=.2, height_shift_range=.2, zoom_range=.2)
+    t_and_v_gen = ImageDataGenerator(rescale=1./255)
     
     train_gen = trgen.flow_from_dataframe(train_df, x_col='filepaths', y_col='labels', target_size=img_size,
                                          class_mode='categorical', color_mode='rgb', shuffle=True, batch_size=batch_size)

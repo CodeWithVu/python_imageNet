@@ -4,22 +4,47 @@ from tensorflow.keras.layers import Dense, Dropout, BatchNormalization
 from tensorflow.keras import regularizers
 from tensorflow.keras.optimizers import Adamax
 
-def create_model(img_shape, class_count, lr=0.001):
-    base_model = tf.keras.applications.efficientnet.EfficientNetB3(include_top=False, weights="imagenet", input_shape=img_shape, pooling='max')
-    base_model.trainable = True # fine tuning full network
-    x = base_model.output
+def create_model(img_shape, class_count, lr=0.0008):
+    """
+    Tạo model EfficientNetB3 - Tương thích với Keras 3.x (TensorFlow 2.16+)
+    
+    Các thay đổi quan trọng cho Keras 3.x:
+    1. Sử dụng Functional API với tf.keras.Input()
+    2. Thêm preprocessing layer cho EfficientNet
+    3. Giảm regularization (từ 0.016 xuống 0.001)
+    4. Giảm learning rate (từ 0.001 xuống 0.0008)
+    """
+    # Load base model
+    base_model = tf.keras.applications.efficientnet.EfficientNetB3(
+        include_top=False, 
+        weights="imagenet", 
+        input_shape=img_shape, 
+        pooling='max'
+    )
+    base_model.trainable = True  # Fine tuning full network
+    
+    # Build model với Functional API (quan trọng cho Keras 3.x)
+    inputs = tf.keras.Input(shape=img_shape)
+    
+    # QUAN TRỌNG: Thêm preprocessing layer cho EfficientNet
+    # ImageDataGenerator output [0-255], EfficientNet cần preprocessing đặc biệt
+    x = tf.keras.applications.efficientnet.preprocess_input(inputs)
+    
+    x = base_model(x, training=True)
     x = BatchNormalization(axis=-1, momentum=0.99, epsilon=0.001)(x)
-    x = Dense(
-        256,
-        kernel_regularizer=regularizers.l2(0.016),
-        activity_regularizer=regularizers.l1(0.006),
-        bias_regularizer=regularizers.l1(0.006),
-        activation='relu'
-    )(x)
-    x = Dropout(rate=.4, seed=123)(x)
+    
+    # GIẢM REGULARIZATION cho Keras 3.x (tránh accuracy bị chặn)
+    x = Dense(256, kernel_regularizer=regularizers.l2(0.001), activation='relu')(x)
+    x = Dropout(rate=0.45, seed=123)(x)
     output = Dense(class_count, activation='softmax')(x)
-    model = Model(inputs=base_model.input, outputs=output)
+    
+    model = tf.keras.Model(inputs=inputs, outputs=output)
     model.compile(Adamax(learning_rate=lr), loss='categorical_crossentropy', metrics=['accuracy'])
+    
+    print(f"✅ Model created for Keras 3.x (TF {tf.__version__})")
+    print(f"   - L2 regularization: 0.001")
+    print(f"   - Learning rate: {lr}")
+    
     return model
 
 # include_top=False

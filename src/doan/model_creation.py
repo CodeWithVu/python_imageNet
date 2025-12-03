@@ -16,10 +16,10 @@ def create_model(img_shape, class_count, lr=0.0008):
     """
     # Load base model
     base_model = tf.keras.applications.EfficientNetB3(
-        include_top=False, 
-        weights="imagenet", 
-        input_shape=img_shape, 
-        pooling='max'
+        include_top=False, # Bỏ phần classification gốc của EfficientNet
+        weights="imagenet", # Load trọng số pretrained của ImageNet
+        input_shape=img_shape, # Dữ liệu đầu vào của tôi
+        pooling='max' # Lấy Global Max Pooling để chuyển feature map 2D → vector 1D
     )
     base_model.trainable = True  # Fine tuning full network
     
@@ -27,11 +27,12 @@ def create_model(img_shape, class_count, lr=0.0008):
     inputs = tf.keras.Input(shape=img_shape)
     
     # QUAN TRỌNG: Thêm preprocessing layer cho EfficientNetB3
-    # ImageDataGenerator output [0-255], EfficientNetB3 cần preprocessing đặc biệt
+    # ImageDataGenerator output [0-255], EfficientNetB3 cần preprocessing đặc biệt -> [-1, 1]
     x = tf.keras.applications.efficientnet.preprocess_input(inputs)
     
-    x = base_model(x, training=True)
+    x = base_model(x, training=True) # Ensure base_model is in training mode for BatchNorm layers
     x = BatchNormalization(axis=-1, momentum=0.99, epsilon=0.001)(x)
+    # axis=-1 chuẩn hóa theo channel cuối vì dữ liệu hình ảnh có định dạng (batch_size, height, width, channels)
     
     # GIẢM REGULARIZATION cho Keras 3.x (tránh accuracy bị chặn)
     x = Dense(256, kernel_regularizer=regularizers.l2(0.001), activation='relu')(x)
@@ -40,6 +41,7 @@ def create_model(img_shape, class_count, lr=0.0008):
     
     model = tf.keras.Model(inputs=inputs, outputs=output)
     model.compile(Adamax(learning_rate=lr), loss='categorical_crossentropy', metrics=['accuracy'])
+    # loss='categorical_crossentropy' vì dùng one-hot encoding
     
     print(f"✅ EfficientNetB3 Model created for Keras 3.x (TF {tf.__version__})")
     print(f"   - L2 regularization: 0.001")

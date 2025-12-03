@@ -35,8 +35,15 @@ def create_model(img_shape, class_count, lr=0.0008):
     # axis=-1 chuẩn hóa theo channel cuối vì dữ liệu hình ảnh có định dạng (batch_size, height, width, channels)
     
     # GIẢM REGULARIZATION cho Keras 3.x (tránh accuracy bị chặn)
+    # ReLU (Rectified Linear Unit) activation function
+    # Formula: f(x) = max(0, x)
+    # It outputs the input directly if it is positive, otherwise, it will output zero.
     x = Dense(256, kernel_regularizer=regularizers.l2(0.001), activation='relu')(x)
     x = Dropout(rate=0.45, seed=123)(x)
+
+     # Softmax activation function
+    # Formula: softmax(x_i) = exp(x_i) / sum(exp(x_j) for j in range(num_classes))
+    # It converts a vector of numbers into a probability distribution, where each value is between 0 and 1, and the sum of all values is 1.
     output = Dense(class_count, activation='softmax')(x)
     
     model = tf.keras.Model(inputs=inputs, outputs=output)
